@@ -13,7 +13,7 @@ pub struct RepoInfo {
     repo_name: String,
     url: String,
     releases_api_url: String,
-    releases: Vec<Release>,
+    pub releases: Vec<Release>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -81,7 +81,7 @@ impl RepoInfo {
         }
     }
 
-    pub async fn get_latest_releases(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn get_latest_release(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         let client = reqwest::Client::builder().user_agent("curl").build()?;
         let resp = client
             .get(&self.releases_api_url)
@@ -100,6 +100,7 @@ impl RepoInfo {
                     .replace('"', ""),
             });
         }
+        self.releases = releases;
         Ok(())
     }
 
@@ -128,7 +129,7 @@ impl RepoInfo {
                             .replace('"', ""),
                     });
                 }
-                self.releases = releases.clone();
+                self.releases = releases;
                 return Ok(());
             }
         }
@@ -151,7 +152,7 @@ impl RepoInfo {
             sysinfo::PlatformOS::Linux => {
                 sysinfo::LINUX.iter().for_each(|linux| {
                     self.releases.iter().for_each(|release| {
-                        if release.name.contains(linux) {
+                        if release.name.to_lowercase().contains(linux) {
                             releases.push(release.clone());
                         }
                     });

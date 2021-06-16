@@ -3,6 +3,7 @@ use nix::sys::utsname;
 pub const APPLE: [&str; 4] = ["macos", "darwin", "mac", "dmg"];
 pub const LINUX: [&str; 1] = ["linux"];
 pub const AMD64: [&str; 4] = ["x64", "x86_64", "amd64", "64bit"];
+pub const ARM64: [&str; 2] = ["aarch64", "arm64"];
 
 #[derive(Debug, Default)]
 pub struct SystemInfo {
@@ -21,6 +22,7 @@ pub enum PlatformOS {
 #[derive(Debug)]
 pub enum PlatformArch {
     X8664,
+    Arm64,
     Unknown,
 }
 
@@ -51,6 +53,12 @@ impl SystemInfo {
         for amd64 in AMD64.iter() {
             if self.arch.contains(amd64) {
                 return PlatformArch::X8664;
+            }
+        }
+
+        for arm64 in ARM64.iter() {
+            if self.arch.contains(arm64) {
+                return PlatformArch::Arm64;
             }
         }
         PlatformArch::Unknown
