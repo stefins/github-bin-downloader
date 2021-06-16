@@ -1,4 +1,7 @@
+use dialoguer::Select;
 use structopt::StructOpt;
+
+use crate::ghapi::Release;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "github-bin-downloader")]
@@ -13,4 +16,11 @@ pub struct Opt {
 
 pub fn run_cli() -> Opt {
     Opt::from_args()
+}
+
+pub async fn display_all_options(
+    releases: &[Release],
+) -> Result<Release, Box<dyn std::error::Error>> {
+    let selection = Select::new().items(&releases).default(0).interact()?;
+    Ok(releases[selection].clone())
 }

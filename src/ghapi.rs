@@ -45,6 +45,12 @@ impl Release {
     }
 }
 
+impl ToString for Release {
+    fn to_string(&self) -> String {
+        self.name.to_string()
+    }
+}
+
 #[derive(Error, Debug)]
 pub enum GithubError {
     #[error("Repo Not Found")]
