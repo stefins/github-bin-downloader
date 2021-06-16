@@ -21,6 +21,10 @@ pub fn run_cli() -> Opt {
 pub async fn display_all_options(
     releases: &[Release],
 ) -> Result<Release, Box<dyn std::error::Error>> {
+    if releases.len() == 0 {
+        println!("Cannot find releases");
+        std::process::exit(1)
+    }
     let selection = Select::new().items(&releases).default(0).interact()?;
     Ok(releases[selection].clone())
 }
