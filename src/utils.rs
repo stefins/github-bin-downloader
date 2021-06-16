@@ -1,3 +1,5 @@
+use crate::ghapi::Release;
+
 pub fn humanize_bytes(bytes: u64) -> String {
     let values = ["bytes", "KB", "MB", "GB", "TB"];
     let pair = values
@@ -20,4 +22,15 @@ pub fn trim_newline(mut s: String) -> String {
         }
     }
     s
+}
+
+pub fn compare_two_vector(vec1: &[Release], vec2: &[Release]) -> Option<Release> {
+    for v1 in vec1 {
+        for v2 in vec2 {
+            if v1 == v2 {
+                return Some(v1.clone());
+            }
+        }
+    }
+    None
 }

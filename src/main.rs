@@ -1,4 +1,4 @@
-use github_bin_downloader::{cli, ghapi};
+use github_bin_downloader::{cli, ghapi, utils};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -13,13 +13,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .await?;
             return Ok(());
         }
-        for release in repo.search_releases_for_os().await? {
-            for release_arch in repo.search_releases_for_arch().await? {
-                if release_arch == release {
-                    release.download_release().await?;
-                    return Ok(());
-                }
-            }
+        match utils::compare_two_vector(
+            &repo.search_releases_for_os().await?,
+            &repo.search_releases_for_arch().await?,
+        ) {
+            Some(release) => release.download_release().await?,
+            None => println!("Cannot find a release for you OS and Arch"),
         }
     } else {
         let mut repo = ghapi::RepoInfo::from_url(&opt.url).await?;
@@ -31,15 +30,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .await?;
             return Ok(());
         }
-        for release in repo.search_releases_for_os().await? {
-            for release_arch in repo.search_releases_for_arch().await? {
-                if release_arch == release {
-                    release.download_release().await?;
-                    return Ok(());
-                }
-            }
+        match utils::compare_two_vector(
+            &repo.search_releases_for_os().await?,
+            &repo.search_releases_for_arch().await?,
+        ) {
+            Some(release) => release.download_release().await?,
+            None => println!("Cannot find a release for you OS and Arch"),
         }
     }
-    println!("Cannot find a release for your OS!");
     Ok(())
 }
