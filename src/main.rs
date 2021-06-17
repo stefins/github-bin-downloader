@@ -17,8 +17,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             &repo.search_releases_for_os().await?,
             &repo.search_releases_for_arch().await?,
         ) {
-            Some(release) => release.download_release().await?,
-            None => println!("Cannot find a release for you OS and Arch"),
+            Some(releases) => {
+                cli::display_all_options(&releases).await?
+                .download_release().await?;
+                return Ok(());
+            },
+            None => println!("Cannot find a release for you OS and Arch\n Use --list flag to list all available options"),
         }
     } else {
         let mut repo = ghapi::RepoInfo::from_url(&opt.url).await?;
@@ -34,8 +38,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             &repo.search_releases_for_os().await?,
             &repo.search_releases_for_arch().await?,
         ) {
-            Some(release) => release.download_release().await?,
-            None => println!("Cannot find a release for you OS and Arch"),
+            Some(releases) => {
+                cli::display_all_options(&releases).await?
+                .download_release().await?;
+                return Ok(());
+            },
+            None => println!("Cannot find a release for you OS and Arch\n Use --list flag to list all available options"),
         }
     }
     Ok(())

@@ -24,13 +24,18 @@ pub fn trim_newline(mut s: String) -> String {
     s
 }
 
-pub fn compare_two_vector(vec1: &[Release], vec2: &[Release]) -> Option<Release> {
+pub fn compare_two_vector(vec1: &[Release], vec2: &[Release]) -> Option<Vec<Release>> {
+    let mut releases: Vec<Release> = Vec::new();
     for v1 in vec1 {
         for v2 in vec2 {
             if v1 == v2 {
-                return Some(v1.clone());
+                releases.push(v1.clone());
             }
         }
     }
-    None
+    if !releases.is_empty() {
+        Some(releases)
+    } else {
+        None
+    }
 }

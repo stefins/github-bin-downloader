@@ -184,6 +184,15 @@ impl RepoInfo {
                     });
                 });
             }
+            sysinfo::PlatformArch::Arm64 => {
+                sysinfo::ARM64.iter().for_each(|arch| {
+                    self.releases.iter().for_each(|release| {
+                        if release.name.contains(arch) {
+                            releases.push(release.clone());
+                        }
+                    });
+                });
+            }
             _ => {}
         }
         Ok(releases)
