@@ -1,8 +1,7 @@
-use std::{cmp::min, fs::File, io::Write};
-
 use crate::sysinfo;
+use crate::utils;
 
-use indicatif::{ProgressBar, ProgressStyle};
+use crate::GBDResult;
 use reqwest::{StatusCode, Url};
 use serde_json::Value;
 use thiserror::Error;
@@ -23,24 +22,11 @@ pub struct Release {
 }
 
 impl Release {
-    pub async fn download_release(&self) -> Result<(), Box<dyn std::error::Error>> {
+    // Download the release
+    pub async fn download_release(&self) -> GBDResult<()> {
         let url = Url::parse(self.url.as_str())?;
         println!("Downloading {} from {}", self.name, url);
-        let mut resp = reqwest::get(url).await?;
-        resp.content_length();
-        let mut f = File::create(&self.name)?;
-        let mut downloaded = 0;
-        let total_size = resp.content_length().unwrap();
-        let pb = ProgressBar::new(total_size);
-        pb.set_style(ProgressStyle::default_bar()
-            .template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})")
-            .progress_chars("#>-"));
-        while let Some(chunk) = resp.chunk().await? {
-            let new = min(downloaded + chunk.len() as u64, total_size);
-            downloaded = new;
-            pb.set_position(new);
-            f.write_all(&chunk[..])?;
-        }
+        utils::download_file_from_url(url, &self.name).await?;
         Ok(())
     }
 }
@@ -58,7 +44,7 @@ pub enum GithubError {
 }
 
 impl RepoInfo {
-    pub async fn from_url(url: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn from_url(url: &str) -> GBDResult<Self> {
         let mut url = url.to_string();
         if !url.contains("https://") && !url.contains("http://") {
             url = format!("https://{}", url);
@@ -83,11 +69,12 @@ impl RepoInfo {
                 ..Default::default()
             })
         } else {
-            return Err(Box::new(GithubError::NotFound(resp.status())));
+            Err(Box::new(GithubError::NotFound(resp.status())))
         }
     }
 
-    pub async fn get_latest_release(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    // Fetch the latest release from Github including Pre-release
+    pub async fn get_latest_release(&mut self) -> GBDResult<()> {
         let client = reqwest::Client::builder().user_agent("curl").build()?;
         let resp = client
             .get(&self.releases_api_url)
@@ -100,17 +87,16 @@ impl RepoInfo {
         let mut releases: Vec<Release> = Vec::new();
         for i in 0..length {
             releases.push(Release {
-                name: repo[0]["assets"][i]["name"].to_string().replace('"', ""),
-                url: repo[0]["assets"][i]["browser_download_url"]
-                    .to_string()
-                    .replace('"', ""),
+                name: utils::sanitize_str_to_string(&repo[0]["assets"][i]["name"]),
+                url: utils::sanitize_str_to_string(&repo[0]["assets"][i]["browser_download_url"]),
             });
         }
         self.releases = releases;
         Ok(())
     }
 
-    pub async fn get_latest_stable_release(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    // Get all the latest stable releases from Github releases
+    pub async fn get_latest_stable_release(&mut self) -> GBDResult<()> {
         let client = reqwest::Client::builder().user_agent("curl").build()?;
         let resp = client
             .get(&self.releases_api_url)
@@ -129,10 +115,10 @@ impl RepoInfo {
                 let length = repo[i]["assets"].as_array().unwrap().len();
                 for j in 0..length {
                     releases.push(Release {
-                        name: repo[i]["assets"][j]["name"].to_string().replace('"', ""),
-                        url: repo[i]["assets"][j]["browser_download_url"]
-                            .to_string()
-                            .replace('"', ""),
+                        name: utils::sanitize_str_to_string(&repo[i]["assets"][j]["name"]),
+                        url: utils::sanitize_str_to_string(
+                            &repo[i]["assets"][j]["browser_download_url"],
+                        ),
                     });
                 }
                 self.releases = releases;
@@ -142,7 +128,8 @@ impl RepoInfo {
         Ok(())
     }
 
-    pub async fn search_releases_for_os(&self) -> Result<Vec<Release>, Box<dyn std::error::Error>> {
+    // Search the releases for the host OS
+    pub async fn search_releases_for_os(&self) -> GBDResult<Vec<Release>> {
         let sys_info = sysinfo::SystemInfo::new();
         let mut releases: Vec<Release> = Vec::new();
         match sys_info.platform_os() {
@@ -169,9 +156,8 @@ impl RepoInfo {
         Ok(releases)
     }
 
-    pub async fn search_releases_for_arch(
-        &self,
-    ) -> Result<Vec<Release>, Box<dyn std::error::Error>> {
+    // Search the releases for the host Arch
+    pub async fn search_releases_for_arch(&self) -> GBDResult<Vec<Release>> {
         let sys_info = sysinfo::SystemInfo::new();
         let mut releases: Vec<Release> = Vec::new();
         match sys_info.platform_arch() {

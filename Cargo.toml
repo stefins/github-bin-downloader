@@ -1,15 +1,22 @@
 [package]
 name = "github-bin-downloader"
 version = "0.1.0"
-authors = ["353fc443 <353fc443@pm.me> "]
+authors = ["353fc443 <353fc443@pm.me>"]
 edition = "2018"
+license = "GPL-3.0"
+readme = "README.md"
+repository = "https://github.com/353fc443/github-bin-downloader"
+description = "Download binary for your OS from Github."
+exclude = [
+    ".github/",
+]
 
 [dependencies]
 reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 serde_json = "1.0"
 thiserror = "1.0"
-indicatif = "0.16.2"
+indicatif = " 0.16.2"
 nix = "0.21.0"
 structopt = "0.3"
 dialoguer = "0.8.0"

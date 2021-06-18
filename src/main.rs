@@ -1,10 +1,10 @@
-use github_bin_downloader::{cli, ghapi, utils};
+use github_bin_downloader::{cli, ghapi, utils, GBDResult};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> GBDResult<()> {
     let opt = cli::run_cli();
+    let mut repo = ghapi::RepoInfo::from_url(&opt.url).await?;
     if opt.latest {
-        let mut repo = ghapi::RepoInfo::from_url(&opt.url).await?;
         repo.get_latest_release().await?;
         if opt.list {
             cli::display_all_options(&repo.releases)
@@ -22,10 +22,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .download_release().await?;
                 return Ok(());
             },
-            None => println!("Cannot find a release for you OS and Arch\n Use --list flag to list all available options"),
+            None => println!("Cannot find a release for your OS and Arch\n Use --list flag to list all available options"),
         }
     } else {
-        let mut repo = ghapi::RepoInfo::from_url(&opt.url).await?;
         repo.get_latest_stable_release().await?;
         if opt.list {
             cli::display_all_options(&repo.releases)
@@ -43,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .download_release().await?;
                 return Ok(());
             },
-            None => println!("Cannot find a release for you OS and Arch\n Use --list flag to list all available options"),
+            None => println!("Cannot find a release for your OS and Arch\n Use --list flag to list all available options"),
         }
     }
     Ok(())
