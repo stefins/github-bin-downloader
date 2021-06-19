@@ -7,7 +7,7 @@ Download binary for your OS from Github.
 Install github-bin-downloader using cargo
 
 ```shell 
-cargo install --git https://github.com/353fc443/github-bin-downloader --branch main
+cargo install github-bin-downloader
 ```
 
 ## Usage
