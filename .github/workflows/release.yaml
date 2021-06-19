@@ -1,0 +1,27 @@
+name: releaser
+
+on:
+  release:
+
+jobs:
+  release-binary:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Chekout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - 
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      -
+        name: Publish to crates.io
+        shell: bash
+        env:
+          CRATES_API_KEY: ${{ secrets.CRATES_API_KEY }}
+        run: |
+          cargo login "$CRATES_API_KEY"
+          cargo publish --dry-run
+          cargo publish
