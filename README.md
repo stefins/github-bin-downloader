@@ -10,6 +10,10 @@ Install github-bin-downloader using cargo
 cargo install github-bin-downloader
 ```
 
+## Demo
+
+![Demo](static/demo.gif)
+
 ## Usage
 
 ```shell

@@ -9,6 +9,7 @@ repository = "https://github.com/353fc443/github-bin-downloader"
 description = "Download binary for your OS from Github."
 exclude = [
     ".github/",
+    "static",
 ]
 
 [dependencies]
