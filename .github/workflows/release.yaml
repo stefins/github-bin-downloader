@@ -2,6 +2,8 @@ name: releaser
 
 on:
   release:
+    types:
+      - created
 
 jobs:
   release-binary:
