@@ -1,4 +1,4 @@
-use github_bin_downloader::{cli, ghapi, utils, GBDResult};
+use github_bin_downloader::{cli, ghapi, show_error, utils, GBDResult};
 
 #[tokio::main]
 async fn main() -> GBDResult<()> {
@@ -22,7 +22,7 @@ async fn main() -> GBDResult<()> {
                 .download_release().await?;
                 return Ok(());
             },
-            None => println!("Cannot find a release for your OS and Arch\n Use --list flag to list all available options"),
+            None => show_error!("Cannot find a release for your OS and Arch\n Use --list flag to list all available options"),
         }
     } else {
         repo.get_latest_stable_release().await?;
@@ -42,7 +42,7 @@ async fn main() -> GBDResult<()> {
                 .download_release().await?;
                 return Ok(());
             },
-            None => println!("Cannot find a release for your OS and Arch\n Use --list flag to list all available options"),
+            None => show_error!("Cannot find a release for your OS and Arch\n Use --list flag to list all available options"),
         }
     }
     Ok(())

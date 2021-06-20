@@ -2,6 +2,8 @@ use dialoguer::Select;
 use structopt::StructOpt;
 
 use crate::ghapi::Release;
+use crate::show_error;
+use crate::GBDResult;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -21,11 +23,9 @@ pub fn run_cli() -> Opt {
     Opt::from_args()
 }
 
-pub async fn display_all_options(
-    releases: &[Release],
-) -> Result<Release, Box<dyn std::error::Error>> {
+pub async fn display_all_options(releases: &[Release]) -> GBDResult<Release> {
     if releases.is_empty() {
-        println!("No releases available!");
+        show_error!("No releases available!");
         std::process::exit(1)
     }
     println!("Select the release you want to download!");
