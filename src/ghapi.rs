@@ -75,7 +75,7 @@ impl RepoInfo {
 
     // Fetch the latest release from Github including Pre-release
     pub async fn get_latest_release(&mut self) -> GBDResult<()> {
-        let client = reqwest::Client::builder().user_agent("curl").build()?;
+        let client = reqwest::Client::builder().user_agent("github-bin-downloader").build()?;
         let resp = client
             .get(&self.releases_api_url)
             .send()
@@ -97,7 +97,7 @@ impl RepoInfo {
 
     // Get all the latest stable releases from Github releases
     pub async fn get_latest_stable_release(&mut self) -> GBDResult<()> {
-        let client = reqwest::Client::builder().user_agent("curl").build()?;
+        let client = reqwest::Client::builder().user_agent("github-bin-downloader").build()?;
         let resp = client
             .get(&self.releases_api_url)
             .send()
