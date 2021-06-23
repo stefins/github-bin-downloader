@@ -1,6 +1,6 @@
 [package]
 name = "github-bin-downloader"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["353fc443 <353fc443@pm.me>"]
 edition = "2018"
 license = "GPL-3.0"

@@ -221,7 +221,7 @@ dependencies = [
 
 [[package]]
 name = "github-bin-downloader"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "dialoguer",
  "indicatif",
