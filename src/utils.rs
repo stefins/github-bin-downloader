@@ -59,7 +59,9 @@ where
     resp.content_length();
     let mut f = File::create(name)?;
     let mut downloaded = 0;
-    let total_size = resp.content_length().unwrap();
+    let total_size = resp
+        .content_length()
+        .expect("Cannot determine size of the content!");
     let pb = ProgressBar::new(total_size);
     pb.set_style(ProgressStyle::default_bar()
             .template("{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({eta})")

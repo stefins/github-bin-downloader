@@ -75,7 +75,9 @@ impl RepoInfo {
 
     // Fetch the latest release from Github including Pre-release
     pub async fn get_latest_release(&mut self) -> GBDResult<()> {
-        let client = reqwest::Client::builder().user_agent("github-bin-downloader").build()?;
+        let client = reqwest::Client::builder()
+            .user_agent("github-bin-downloader")
+            .build()?;
         let resp = client
             .get(&self.releases_api_url)
             .send()
@@ -83,7 +85,10 @@ impl RepoInfo {
             .text()
             .await?;
         let repo: Value = serde_json::from_str(&resp)?;
-        let length = repo[0]["assets"].as_array().unwrap().len();
+        let length = repo[0]["assets"]
+            .as_array()
+            .expect("Cannot convert to Array")
+            .len();
         let mut releases: Vec<Release> = Vec::new();
         for i in 0..length {
             releases.push(Release {
@@ -97,7 +102,9 @@ impl RepoInfo {
 
     // Get all the latest stable releases from Github releases
     pub async fn get_latest_stable_release(&mut self) -> GBDResult<()> {
-        let client = reqwest::Client::builder().user_agent("github-bin-downloader").build()?;
+        let client = reqwest::Client::builder()
+            .user_agent("github-bin-downloader")
+            .build()?;
         let resp = client
             .get(&self.releases_api_url)
             .send()
@@ -105,14 +112,17 @@ impl RepoInfo {
             .text()
             .await?;
         let repo: Value = serde_json::from_str(&resp)?;
-        let length = repo.as_array().unwrap().len();
+        let length = repo.as_array().expect("Cannot convert to Array").len();
         let mut releases: Vec<Release> = Vec::new();
         for i in 0..length {
             if !repo[i]["prerelease"]
                 .as_bool()
                 .expect("Cannot convert to bool")
             {
-                let length = repo[i]["assets"].as_array().unwrap().len();
+                let length = repo[i]["assets"]
+                    .as_array()
+                    .expect("Cannot convert to Array")
+                    .len();
                 for j in 0..length {
                     releases.push(Release {
                         name: utils::sanitize_str_to_string(&repo[i]["assets"][j]["name"]),
