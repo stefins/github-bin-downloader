@@ -6,7 +6,7 @@ on:
       - created
 
 jobs:
-  release-binary:
+  release-to-cargo:
     runs-on: ubuntu-latest
     steps:
       -
@@ -27,3 +27,44 @@ jobs:
           cargo login "$CRATES_API_KEY"
           cargo publish --dry-run
           cargo publish
+  release_for_mac:
+    name: MacOS
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: Rename binary
+        run: mv target/release/github-bin-downloader github-bin-downloader-macos64
+      - name: Upload to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl \
+            -f \
+            -sSL \
+            -XPOST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Length: $(stat -f%z github-bin-downloader-macos64)" \
+            -H "Content-Type: application/octet-stream" \
+            --upload-file "github-bin-downloader-macos64" \
+            "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$(jq --raw-output '.release.id' $GITHUB_EVENT_PATH)/assets?name=github-bin-downloader-macos64"
+  release_for_linux:
+    name: Linux
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: Rename binary
+        run: mv target/release/github-bin-downloader github-bin-downloader-linux-amd64
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@d648f1babf776de9cad881320bd9e9818fc3b262
+        with:
+          args: github-bin-downloader-linux-amd64 application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
